@@ -196,7 +196,7 @@ export class AppComponent {
 
   private onAllRowsCompleted() {
     console.log('All words entered:', this.userWords);
-    isChanceCompleted = true;
+    this.isChanceCompleted = true;
   }
   newGame() {
     // Reset all game state
