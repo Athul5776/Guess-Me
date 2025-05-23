@@ -18,6 +18,7 @@
                [(ngModel)]="matrix[i][j]"
                (input)="onCellInput(i, j, $event)"
                (keydown)="onKeyDown(i, j, $event)"
+               maxlength="1"
                #cellInput>
       </div>
     </div>
