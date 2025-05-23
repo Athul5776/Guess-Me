@@ -1,0 +1,31 @@
+<router-outlet></router-outlet>
+<div class="word-container">
+  <div *ngIf="isLoading" class="loading">Loading word...</div>
+
+  <div *ngIf="word && !isLoading" class="word-display">
+    <h2>Guess the word</h2>
+    
+    <div class="matrix-grid">
+      <div *ngFor="let row of [0,1,2,3,4]; let i = index" class="matrix-row">
+        <input *ngFor="let col of [0,1,2,3,4]; let j = index"
+               type="text" 
+               maxlength="1"
+               class="matrix-cell"
+               [class.correct]="getLetterState(i, j) === 'correct'"
+               [class.included]="getLetterState(i, j) === 'included'"
+               [class.wrong]="getLetterState(i, j) === 'wrong'"
+               [disabled]="(i > currentActiveRow || (i === currentActiveRow && j > 0 && !matrix[i][j-1]) || isWon)"
+               [(ngModel)]="matrix[i][j]"
+               (input)="onCellInput(i, j, $event)"
+               (keydown)="onKeyDown(i, j, $event)"
+               #cellInput>
+      </div>
+    </div>
+    @if (isWon) {
+      <button (click)="newGame()">New Game</button>
+    }
+    @if (showWarning) {
+      <div class="warning-message"> {{warningMessage}} </div>
+    }
+  </div>
+</div>
