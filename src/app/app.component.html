@@ -8,7 +8,7 @@
       <div class="warning-message"> {{warningMessage}} </div>
   }
   <div *ngIf="word && !isLoading" class="word-display">
-    @if(isChanceCompleted){
+    @if(!isChanceCompleted){
       <h2>Guess the word</h2>
     } @else{
       <h2>Word: {{word}}</h2>
