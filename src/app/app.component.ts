@@ -29,6 +29,7 @@ export class AppComponent {
     state: 'correct' | 'included' | 'wrong';
   }[] = [];
   isWon: boolean = false;
+  isChanceCompleted: boolean = false;
 
   ngOnInit() {
     this.loadNewWord();
@@ -195,6 +196,7 @@ export class AppComponent {
 
   private onAllRowsCompleted() {
     console.log('All words entered:', this.userWords);
+    isChanceCompleted = true;
   }
   newGame() {
     // Reset all game state
@@ -204,6 +206,7 @@ export class AppComponent {
     this.letterStates = [];
     this.isWon = false;
     this.showWarning = false;
+    this.isChanceCompleted = false;
 
     // Load a new word
     this.loadNewWord();

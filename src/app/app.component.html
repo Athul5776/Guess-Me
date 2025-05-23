@@ -7,8 +7,15 @@
   @if (showWarning) {
       <div class="warning-message"> {{warningMessage}} </div>
   }
-  <div *ngIf="word && !isLoading" class="word-display">
+  @if(word && !isLoading && !isChanceCompleted){
+    <div class="word-display">
     <h2>Guess the word</h2>
+  }
+  @if(isChanceCompleted){
+    <div class="word-display">
+    <h2> Word : {{word}} </h2>
+  }
+  
     
     <div class="matrix-grid">
       <div *ngFor="let row of [0,1,2,3,4]; let i = index" class="matrix-row">
