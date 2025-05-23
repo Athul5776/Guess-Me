@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { RandomWordService } from './core/services/random-word.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import confetti from 'canvas-confetti';
+// import confetti from 'canvas-confetti';
 
 @Component({
   selector: 'app-root',
@@ -38,13 +38,13 @@ export class AppComponent {
     this.focusCell(0, 0);
   }
 
-  private launchConfetti() {
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-    });
-  }
+  // private launchConfetti() {
+  //   confetti({
+  //     particleCount: 150,
+  //     spread: 70,
+  //     origin: { y: 0.6 },
+  //   });
+  // }
 
   loadNewWord() {
     this.isLoading = true;
@@ -102,7 +102,7 @@ export class AppComponent {
           // Check if guess matches the target word exactly
           if (guess === this.word) {
             console.log('Congratulations! You guessed the word correctly!');
-            this.launchConfetti();
+            // this.launchConfetti();
             this.isWon = true;
             return; // Exit early since game is won
           }
