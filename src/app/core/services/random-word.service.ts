@@ -11,10 +11,11 @@ export class RandomWordService {
 
   constructor(private http: HttpClient) { }
 
-  getRandomFiveLetterWord(): Observable<string> {
+  getRandomFiveLetterWord(): Observable<{ word: string, definition: string }> {
     const params = {
       sp: '?????', // 5 letters
-      max: '1000',   // get up to 1000 words to choose from
+      max: '200',   // get up to 300 words to choose from
+      md: 'd'      // include definitions
     };
 
     return this.http.get<any[]>(this.apiUrl, { params }).pipe(
@@ -23,11 +24,27 @@ export class RandomWordService {
           throw new Error('No words found');
         }
         const randomIndex = Math.floor(Math.random() * words.length);
-        return words[randomIndex].word;
+        const selectedWord = words[randomIndex];
+        
+        // Clean up definition (remove part-of-speech tag if present)
+        let definition = 'No definition available';
+        if (selectedWord.defs) {
+          const rawDefinition = selectedWord.defs[0];
+          // Split on the first space and take the rest of the string
+          definition = rawDefinition.substring(rawDefinition.indexOf(' ') + 1);
+        }
+
+        return {
+          word: selectedWord.word,
+          definition: definition
+        };
       }),
       catchError(error => {
         console.error('Error fetching word:', error);
-        return of(this.getFallbackWord()); // Fallback to local word
+        return of({
+          word: this.getFallbackWord(),
+          definition: 'No definition available'
+        });
       })
     );
   }

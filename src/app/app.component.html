@@ -1,35 +1,44 @@
 <router-outlet></router-outlet>
+@if (showWarning) {
+      <div class="warning-message"> {{warningMessage}} </div>
+  }
 <div class="word-container">
-  <div *ngIf="isLoading" class="loading">Loading word...</div>
+  <app-loading-cube *ngIf="isLoading"></app-loading-cube>
   @if (isWon || isChanceCompleted) {
       <button (click)="newGame()">New Game</button>
   }
-  @if (showWarning) {
-      <div class="warning-message"> {{warningMessage}} </div>
-  }
   <div *ngIf="word && !isLoading" class="word-display">
     @if(!isChanceCompleted){
-      <h2>Guess the word</h2>
+      <h2 class="guess-prompt">Guess the word</h2>
     } @else{
-      <h2>Word: {{word}}</h2>
+      <div class="word-definition-container">
+        <h2 class="word-title">Word: <span class="word-text">{{word}}</span></h2>
+        <h3 class="definition-title">Definition:</h3>
+        <p class="definition-text">{{definition}}</p>
+      </div>
     }
     
     <div class="matrix-grid">
       <div *ngFor="let row of [0,1,2,3,4]; let i = index" class="matrix-row">
-        <input *ngFor="let col of [0,1,2,3,4]; let j = index"
-               type="text" 
-               maxlength="1"
-               class="matrix-cell"
-               [class.correct]="getLetterState(i, j) === 'correct'"
-               [class.included]="getLetterState(i, j) === 'included'"
-               [class.wrong]="getLetterState(i, j) === 'wrong'"
-               [disabled]="(i > currentActiveRow || (i === currentActiveRow && j > 0 && !matrix[i][j-1]) || isWon)"
-               [(ngModel)]="matrix[i][j]"
-               (input)="onCellInput(i, j, $event)"
-               (keydown)="onKeyDown(i, j, $event)"
-               maxlength="1"
-               #cellInput>
-      </div>
+  <div *ngIf="isValidating && i === currentActiveRow" class="validation-loader">
+    <div *ngFor="let col of [0,1,2,3,4]" class="loader-cell"></div>
+  </div>
+  <input *ngFor="let col of [0,1,2,3,4]; let j = index"
+         type="text" 
+         maxlength="1"
+         class="matrix-cell"
+         [class.hidden]="isValidating && i === currentActiveRow"
+         [class.correct]="getLetterState(i, j) === 'correct'"
+         [class.included]="getLetterState(i, j) === 'included'"
+         [class.wrong]="getLetterState(i, j) === 'wrong'"
+          [disabled]="shouldDisableCell(i, j)"
+         [(ngModel)]="matrix[i][j]"
+         (input)="onCellInput(i, j, $event)"
+         (keydown)="onKeyDown(i, j, $event)"
+         maxlength="1"
+         appAlphabetOnly
+         #cellInput>
+</div>
     </div>
   </div>
 </div>

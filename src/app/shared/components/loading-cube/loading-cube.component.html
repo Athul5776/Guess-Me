@@ -1,0 +1,5 @@
+<div class="loader-container">
+  <div class="cube" *ngFor="let letter of letters; let i = index" [style.animationDelay]="(i * 0.1) + 's'">
+    <span>{{ letter }}</span>
+  </div>
+</div>

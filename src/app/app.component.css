@@ -1,3 +1,19 @@
+/* Base font for the app */
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Headings and buttons */
+h1, h2, h3, button, .word-title, .guess-prompt {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+}
+
+/* Game grid letters */
+.matrix-cell {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+}
 .word-container {
   max-width: 600px;
   margin: 2rem auto;
@@ -44,7 +60,7 @@
 
 .matrix-cell:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+  box-shadow: 0 0 0 1.5px rgba(16, 65, 114, 0.2);
 }
 
 .matrix-cell.correct {
@@ -69,12 +85,29 @@
   color: white;
 }
 .warning-message {
-  color: #d32f2f;
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  /* background-color: #d44848; */
+  background-color: #f1b23b;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   text-align: center;
-  animation: fadeInOut 3s ease-in-out;
+  z-index: 1000;
+  animation: dropIn 0.5s ease-out forwards, fadeOut 0.5s ease-in 2.5s forwards;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 250px;
+}
+.warning-message::before {
+  content: "⚠️";
+  margin-right: 8px;
+  font-size: 1.2em;
 }
 button {
   background-color: #1976d2;
@@ -90,6 +123,129 @@ button {
 
 button:hover {
   background-color: #1565c0;
+}
+/* ... (keep all your existing styles) ... */
+
+.word-definition-container {
+  text-align: left;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.word-title {
+  color: #2e7d32;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.word-text {
+  color: #1976d2;
+  font-weight: bold;
+}
+
+.definition-title {
+  color: #2e7d32;
+  font-size: 1.2rem;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.definition-text {
+  color: #333;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+  padding-left: 1rem;
+  border-left: 3px solid #c9b458;
+}
+
+.guess-prompt {
+  text-align: center;
+  color: #2e7d32;
+  margin-bottom: 1.5rem;
+}
+.validation-loader {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  position: absolute;
+  width: calc(100% - 16px); /* Account for the gap */
+  left: 8px; /* Half of the gap to center properly */
+  pointer-events: none; /* Allow clicks to pass through to inputs */
+}
+
+.loader-cell {
+  width: 58px;
+  height: 53px;
+  background-color: #d3cdcd;
+  border-radius: 8px;
+  animation: pulse 1.5s infinite ease-in-out;
+  opacity: 0.7;
+  border: 2px solid #ddd; /* Match input border */
+  box-sizing: border-box; /* Include border in width/height */
+}
+
+.matrix-row {
+  position: relative;
+  height: 53px; /* Fixed height to prevent row shifting */
+}
+
+.hidden {
+  opacity: 0; /* Better than visibility: hidden for smoother transitions */
+  position: absolute; /* Remove from layout flow */
+}
+
+.loader-cell:nth-child(1) { animation-delay: 0s; }
+.loader-cell:nth-child(2) { animation-delay: 0.2s; }
+.loader-cell:nth-child(3) { animation-delay: 0.4s; }
+.loader-cell:nth-child(4) { animation-delay: 0.6s; }
+.loader-cell:nth-child(5) { animation-delay: 0.8s; }
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    background-color: #f0f0f0;
+    border-color: #ddd;
+  }
+  50% {
+    transform: scale(1.05);
+    background-color: #e0e0e0;
+    border-color: #bbb;
+  }
+}
+@keyframes dropIn {
+  0% {
+    top: -100px;
+    opacity: 0;
+  }
+  80% {
+    top: 30px;
+    opacity: 1;
+  }
+  100% {
+    top: 20px;
+    opacity: 1;
+  }
+}
+@keyframes fadeOut {
+  0% {
+    top: 20px;
+    opacity: 1;
+  }
+  100% {
+    top: -100px;
+    opacity: 0;
+  }
+}
+
+.matrix-row {
+  position: relative; /* Add this to position the loader absolutely */
+}
+
+.hidden {
+  visibility: hidden;
 }
 
 @keyframes fadeInOut {
@@ -115,3 +271,4 @@ button:hover {
   pointer-events: none; /* So it doesn’t block clicks */
   z-index: 9999; /* Make sure it's above all content */
 }
+

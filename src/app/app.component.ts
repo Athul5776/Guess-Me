@@ -3,12 +3,14 @@ import { RouterOutlet } from '@angular/router';
 import { RandomWordService } from './core/services/random-word.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AlphabetOnlyDirective } from './shared/directives/alphabet-only.directive';
+import { LoadingCubeComponent } from './shared/components/loading-cube/loading-cube.component';
 // import confetti from 'canvas-confetti';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, FormsModule],
+  imports: [RouterOutlet, CommonModule, FormsModule, AlphabetOnlyDirective, LoadingCubeComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
@@ -17,6 +19,7 @@ export class AppComponent {
   @ViewChildren('cellInput') cellInputs!: QueryList<ElementRef>;
 
   word: string = '';
+  definition: string = '';
   warningMessage: string = '';
   showWarning: boolean = false;
   isLoading: boolean = false;
@@ -30,14 +33,29 @@ export class AppComponent {
   }[] = [];
   isWon: boolean = false;
   isChanceCompleted: boolean = false;
+  isValidating: boolean = false;
+
 
   ngOnInit() {
     this.loadNewWord();
   }
 
   ngAfterViewInit() {
-    this.focusCell(0, 0);
+      this.focusFirstCell();
   }
+  private focusFirstCell() {
+  setTimeout(() => {
+    const input = this.getInputElement(0, 0);
+    if (input) {
+      input.nativeElement.focus();
+      input.nativeElement.select();
+    } else {
+      // Retry if not found immediately
+      setTimeout(() => this.focusFirstCell(), 50);
+    }
+  });
+}
+
 
   // private launchConfetti() {
   //   confetti({
@@ -49,10 +67,13 @@ export class AppComponent {
 
   loadNewWord() {
     this.isLoading = true;
-    this.randomWordService.getRandomFiveLetterWord().subscribe((word) => {
-      this.word = word.toLowerCase();
+    this.randomWordService.getRandomFiveLetterWord().subscribe((wordOnj) => {
+      this.word = wordOnj?.word.toLowerCase();
+      this.definition = wordOnj?.definition;
       console.log('Word:', this.word);
-      this.isLoading = false;
+      setTimeout(() => {
+        this.isLoading = false;
+      }, 2000);
     });
   }
 
@@ -91,40 +112,42 @@ export class AppComponent {
   }
 
   private checkRowCompletion(row: number) {
-    const currentRow = this.matrix[row];
-    const guess = currentRow.join('').toLowerCase();
+  const currentRow = this.matrix[row];
+  const guess = currentRow.join('').toLowerCase();
 
-    if (guess.length === 5) {
-      this.randomWordService.isValidWord(guess).subscribe((isValid) => {
-        if (isValid) {
-          this.userWords[row] = guess;
-          this.evaluateGuess(row, guess);
+  if (guess.length === 5) {
+    this.isValidating = true; // Show loader
+    
+    this.randomWordService.isValidWord(guess).subscribe((isValid) => {
+      this.isValidating = false; // Hide loader
+      
+      if (isValid) {
+        this.userWords[row] = guess;
+        this.evaluateGuess(row, guess);
 
-          // Check if guess matches the target word exactly
-          if (guess === this.word) {
-            console.log('Congratulations! You guessed the word correctly!');
-            // this.launchConfetti();
-            this.isWon = true;
-            return; // Exit early since game is won
-          }
-
-          this.disableRow(row);
-
-          if (row < 4) {
-            this.currentActiveRow = row + 1;
-            setTimeout(() => this.focusCell(row + 1, 0));
-          } else {
-            this.onAllRowsCompleted();
-          }
-        } else {
-          this.showWarningMessage('Not a valid English word!');
-          // Clear the invalid word
-          this.matrix[row] = ['', '', '', '', ''];
-          this.focusCell(row, 0);
+        if (guess === this.word) {
+          console.log('Congratulations! You guessed the word correctly!');
+          this.isWon = true;
+          return;
         }
-      });
-    }
+
+        this.disableRow(row);
+
+        if (row < 4) {
+          this.currentActiveRow = row + 1;
+          setTimeout(() => this.focusCell(row + 1, 0));
+        } else {
+          this.onAllRowsCompleted();
+        }
+      } else {
+        this.showWarningMessage('Not a valid English word!');
+        this.matrix[row] = ['', '', '', '', ''];
+        this.focusCell(row, 0);
+      }
+    });
   }
+}
+
 
   private showWarningMessage(message: string) {
     this.warningMessage = message;
@@ -170,11 +193,16 @@ export class AppComponent {
   }
 
   private disableRow(row: number) {
+  setTimeout(() => { // Add timeout to ensure change detection
     const inputs = this.getInputElementsForRow(row);
     inputs.forEach((input) => {
       input.nativeElement.disabled = true;
+      // Force reapply disabled class
+      input.nativeElement.classList.toggle('disabled', true);
     });
-  }
+  });
+}
+
 
   private focusCell(row: number, col: number) {
     const input = this.getInputElement(row, col);
@@ -210,8 +238,25 @@ export class AppComponent {
 
     // Load a new word
     this.loadNewWord();
+    this.focusFirstCell();
 
     // Focus first cell after a small delay to ensure view is updated
     setTimeout(() => this.focusCell(0, 0), 100);
   }
+  shouldDisableCell(row: number, col: number): boolean {
+  // Only enable if:
+  // 1. It's the current active row AND
+  // 2. It's either the first cell OR the previous cell has content AND
+  // 3. It's not currently validating
+  const isCurrentActiveCell = (
+    row === this.currentActiveRow && 
+    (col === 0 || !!this.matrix[row][col-1]) &&
+    !this.isValidating
+  );
+  
+  // Disable all other cells
+  return !isCurrentActiveCell;
+}
+
+
 }
