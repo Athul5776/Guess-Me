@@ -1,7 +1,7 @@
 <router-outlet></router-outlet>
 <div class="word-container">
   <div *ngIf="isLoading" class="loading">Loading word...</div>
-  @if (isWon) {
+  @if (isWon || isChanceCompleted) {
       <button (click)="newGame()">New Game</button>
   }
   @if (showWarning) {
